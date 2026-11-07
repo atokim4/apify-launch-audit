@@ -1,0 +1,32 @@
+{
+  "title": "Launch Audit input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "urls": {
+      "title": "Site URLs",
+      "type": "array",
+      "description": "Public URLs to audit, one per line. A bare domain (example.com) is checked over https://.",
+      "editor": "stringList",
+      "prefill": ["https://example.com"]
+    },
+    "maxBundles": {
+      "title": "Max JavaScript files per site",
+      "type": "integer",
+      "description": "How many first-party JS files (including lazy-loaded chunks) to download and scan for leaked keys.",
+      "default": 20,
+      "minimum": 1,
+      "maximum": 100
+    },
+    "timeoutSecs": {
+      "title": "Request timeout (seconds)",
+      "type": "integer",
+      "description": "Timeout for each HTTP request.",
+      "default": 15,
+      "minimum": 5,
+      "maximum": 60,
+      "unit": "seconds"
+    }
+  },
+  "required": ["urls"]
+}

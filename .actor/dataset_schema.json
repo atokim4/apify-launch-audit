@@ -1,0 +1,61 @@
+{
+  "actorSpecification": 1,
+  "title": "Launch audit results",
+  "fields": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "url": { "type": "string", "title": "Audited URL", "example": "https://example.com/" },
+      "finalUrl": { "type": ["string", "null"], "title": "Final URL after redirects" },
+      "score": { "type": "integer", "title": "Score (0-100)", "example": 72 },
+      "grade": { "type": "string", "title": "Grade", "enum": ["A", "B", "C", "D", "F"] },
+      "critical": { "type": "integer", "title": "Critical findings" },
+      "high": { "type": "integer", "title": "High findings" },
+      "medium": { "type": "integer", "title": "Medium findings" },
+      "low": { "type": "integer", "title": "Low findings" },
+      "toCheck": { "type": "integer", "title": "Items to verify manually" },
+      "frameworks": { "type": "array", "title": "Detected frameworks", "items": { "type": "string" } },
+      "hosting": { "type": "array", "title": "Detected hosting / CDN", "items": { "type": "string" } },
+      "ttfbMs": { "type": ["integer", "null"], "title": "Time to first byte (ms)" },
+      "jsKb": { "type": "integer", "title": "JavaScript scanned (KB, uncompressed)" },
+      "topIssues": { "type": "array", "title": "Top issues", "items": { "type": "string" } },
+      "findings": {
+        "type": "array",
+        "title": "All findings",
+        "description": "Each finding has id, category, severity, title, detail, fix and redacted evidence.",
+        "items": { "type": "object" }
+      },
+      "metrics": { "type": "object", "title": "Metrics" },
+      "auditedAt": { "type": "string", "title": "Audited at (ISO time)" },
+      "error": { "type": ["string", "null"], "title": "Error, when the site could not be fetched" }
+    },
+    "required": ["url", "score", "grade", "findings"]
+  },
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": ["url", "score", "grade", "critical", "high", "medium", "low", "toCheck", "frameworks", "hosting", "ttfbMs", "jsKb", "topIssues", "error"]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "url": { "label": "URL", "format": "link" },
+          "score": { "label": "Score", "format": "number" },
+          "grade": { "label": "Grade", "format": "text" },
+          "critical": { "label": "Critical", "format": "number" },
+          "high": { "label": "High", "format": "number" },
+          "medium": { "label": "Medium", "format": "number" },
+          "low": { "label": "Low", "format": "number" },
+          "toCheck": { "label": "To check", "format": "number" },
+          "frameworks": { "label": "Stack", "format": "array" },
+          "hosting": { "label": "Hosting", "format": "array" },
+          "ttfbMs": { "label": "TTFB ms", "format": "number" },
+          "jsKb": { "label": "JS KB", "format": "number" },
+          "topIssues": { "label": "Top issues", "format": "array" },
+          "error": { "label": "Error", "format": "text" }
+        }
+      }
+    }
+  }
+}

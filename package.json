@@ -1,0 +1,52 @@
+{
+  "name": "apify-launch-audit",
+  "version": "0.1.0",
+  "description": "Passive pre-launch audit of a deployed web app: HTTPS, security headers, cookies, leaked keys in JS bundles, source maps, tech stack and page weight.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.19"
+  },
+  "bin": {
+    "launch-audit": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "audit": "tsx src/cli.ts",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "apify": "3.7.2",
+    "cheerio": "1.2.0",
+    "undici": "8.12.4",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.20.5",
+    "eslint": "10.14.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.1.0"
+  },
+  "keywords": [
+    "security",
+    "audit",
+    "pre-launch",
+    "supabase",
+    "stripe",
+    "secrets",
+    "headers",
+    "apify",
+    "cli"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}

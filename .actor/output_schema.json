@@ -1,0 +1,17 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "Launch Audit output",
+  "type": "object",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Audit results (one row per site)",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    },
+    "report": {
+      "type": "string",
+      "title": "Markdown report",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+    }
+  }
+}
