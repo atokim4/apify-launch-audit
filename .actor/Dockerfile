@@ -10,6 +10,6 @@ FROM apify/actor-node:22
 COPY --chown=myuser package*.json ./
 RUN npm ci --omit=dev --omit=optional --audit=false --fund=false \
     && echo "Node.js $(node --version), npm $(npm --version)"
-COPY --from=builder --chown=myuser /home/myuser/dist ./dist
+COPY --from=builder --chown=myuser /usr/src/app/dist ./dist
 COPY --chown=myuser .actor ./.actor
 CMD ["npm", "run", "start", "--silent"]
