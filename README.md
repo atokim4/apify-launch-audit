@@ -67,7 +67,7 @@ The whole run is also saved as a Markdown report in the key-value store under `O
 
 ## Pricing
 
-One `site-audited` event per site that was reached and audited. URLs that fail (DNS error, timeout, private address) are not charged, and the run stops when your spending limit is reached.
+The Actor itself is free for now: you only pay for Apify platform usage, and a run over a few sites takes a few seconds at 256 MB of memory. If per-site pricing is added later, Apify will announce it in advance; it would be one `site-audited` event per site that was reached and audited, URLs that fail (DNS error, timeout, private address) would not be charged, and runs would stop at your spending limit.
 
 ## Scoring
 
