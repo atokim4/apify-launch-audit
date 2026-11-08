@@ -69,7 +69,7 @@ The whole run is also saved as a Markdown report in the key-value store under `O
 
 ## Pricing
 
-The Actor itself is free for now: you only pay for Apify platform usage, and a run over a few sites takes a few seconds at 256 MB of memory. If per-site pricing is added later, Apify will announce it in advance; it would be one `site-audited` event per site that was reached and audited, URLs that fail (DNS error, timeout, private address) would not be charged, and runs would stop at your spending limit.
+The Actor itself is free for now: you only pay for Apify platform usage, and a run over a few sites takes a few seconds at 256 MB of memory. With `lighthouse` on, a test run on one small-business site at 2048 MB took about 1 minute (45 s of it Lighthouse) and used $0.006 of platform usage. If per-site pricing is added later, Apify will announce it in advance; it would be one `site-audited` event per site that was reached and audited, URLs that fail (DNS error, timeout, private address) would not be charged, and runs would stop at your spending limit.
 
 ## Scoring
 
