@@ -8,6 +8,7 @@ export const InputSchema = z.object({
     .transform((urls) => [...new Set(urls)]),
   maxBundles: z.number().int().min(1).max(100).default(20),
   timeoutSecs: z.number().int().min(5).max(60).default(15),
+  lighthouse: z.boolean().default(false),
 });
 
 export type Input = z.infer<typeof InputSchema>;

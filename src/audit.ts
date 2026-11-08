@@ -26,7 +26,7 @@ export const DEFAULTS = {
   maxBundles: 20,
   timeoutMs: 15_000,
   maxBytes: 8 * 1024 * 1024,
-  userAgent: 'launch-audit/0.1 (+passive pre-launch checks)',
+  userAgent: 'launch-audit/0.2 (+passive pre-launch checks)',
   allowPrivateNetwork: false,
 } satisfies Required<AuditOptions>;
 

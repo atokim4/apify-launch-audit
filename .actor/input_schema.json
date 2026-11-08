@@ -8,7 +8,9 @@
       "type": "array",
       "description": "Public URLs to audit, one per line. A bare domain (example.com) is checked over https://.",
       "editor": "stringList",
-      "prefill": ["https://example.com"]
+      "prefill": [
+        "https://example.com"
+      ]
     },
     "maxBundles": {
       "title": "Max JavaScript files per site",
@@ -26,7 +28,16 @@
       "minimum": 5,
       "maximum": 60,
       "unit": "seconds"
+    },
+    "lighthouse": {
+      "title": "Also run Lighthouse (mobile)",
+      "type": "boolean",
+      "description": "Load each site in headless Chrome with Lighthouse's mobile preset: performance, accessibility, best-practices and SEO scores, LCP/CLS/TBT, page weight, the biggest savings, a combined score and three plain-language findings with a fix scope. Adds about 10-60 s per site. Give the run at least 1024 MB of memory (2048 MB recommended).",
+      "default": false,
+      "editor": "checkbox"
     }
   },
-  "required": ["urls"]
+  "required": [
+    "urls"
+  ]
 }

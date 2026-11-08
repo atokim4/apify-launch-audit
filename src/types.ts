@@ -58,6 +58,10 @@ export interface AuditResult {
   findings: Finding[];
   /** Set when the site could not be fetched at all. */
   error?: string;
+  /** Present only when Lighthouse was requested. */
+  lighthouse?: LighthouseSummary | LighthouseFailure;
+  /** Security score and Lighthouse scores blended; present only with a successful Lighthouse run. */
+  combinedScore?: number;
 }
 
 export interface AuditOptions {
@@ -70,4 +74,47 @@ export interface AuditOptions {
   userAgent?: string;
   /** Allow localhost / private IPs. Off by default so a hosted run cannot probe internal networks. */
   allowPrivateNetwork?: boolean;
+}
+
+export interface LighthouseScores {
+  performance: number | null;
+  accessibility: number | null;
+  bestPractices: number | null;
+  seo: number | null;
+}
+
+export interface LighthouseOpportunity {
+  /** Lighthouse audit id, e.g. `render-blocking-insight`. */
+  id: string;
+  title: string;
+  /** Estimated LCP/FCP time saved on the simulated phone, in ms. */
+  savingsMs: number;
+  /** Estimated bytes saved, when Lighthouse reports one. */
+  savingsBytes: number;
+}
+
+/** The parts of a Lighthouse report (LHR) this tool uses. */
+export interface LighthouseSummary {
+  lighthouseVersion: string;
+  formFactor: string;
+  finalUrl: string;
+  /** Category scores 0-100; null when Lighthouse could not compute one. */
+  scores: LighthouseScores;
+  lcpMs: number | null;
+  cls: number | null;
+  tbtMs: number | null;
+  fcpMs: number | null;
+  totalKb: number | null;
+  jsKb: number | null;
+  jsRequests: number | null;
+  /** The biggest savings first, at most three. */
+  opportunities: LighthouseOpportunity[];
+  /** Lighthouse's own warnings (e.g. the page redirected or loaded slowly). */
+  warnings: string[];
+  durationMs: number;
+}
+
+export interface LighthouseFailure {
+  error: string;
+  durationMs: number;
 }

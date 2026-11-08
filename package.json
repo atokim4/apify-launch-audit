@@ -1,7 +1,7 @@
 {
   "name": "apify-launch-audit",
-  "version": "0.1.0",
-  "description": "Passive pre-launch audit of a deployed web app: HTTPS, security headers, cookies, leaked keys in JS bundles, source maps, tech stack and page weight.",
+  "version": "0.2.0",
+  "description": "Passive pre-launch audit of a deployed web app (HTTPS, security headers, cookies, leaked keys in JS bundles, source maps, stack, page weight) with optional Lighthouse scores and plain-language findings.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -21,6 +21,8 @@
   "dependencies": {
     "apify": "3.7.2",
     "cheerio": "1.2.0",
+    "chrome-launcher": "1.2.3",
+    "lighthouse": "13.6.0",
     "undici": "8.12.4",
     "zod": "4.6.7"
   },
@@ -42,7 +44,10 @@
     "secrets",
     "headers",
     "apify",
-    "cli"
+    "cli",
+    "lighthouse",
+    "performance",
+    "core-web-vitals"
   ],
   "files": [
     "dist",

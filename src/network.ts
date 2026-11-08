@@ -1,4 +1,5 @@
 import { lookup, type LookupAddress, type LookupOptions } from 'node:dns';
+import { lookup as dnsLookup } from 'node:dns/promises';
 import { BlockList, isIP } from 'node:net';
 
 const blocked = new BlockList();
@@ -76,4 +77,13 @@ export function assertPublicLiteral(url: string): void {
   if (host === 'localhost' || host.endsWith('.localhost') || isPrivateAddress(host)) {
     throw new PrivateNetworkError(host);
   }
+}
+
+/** Resolves the host and rejects it when any address is private. For tools that open their own connections (Chrome). */
+export async function assertPublicHost(url: string): Promise<void> {
+  assertPublicLiteral(url);
+  const host = new URL(url).hostname.replace(/^\[|\]$/g, '');
+  if (isIP(host) !== 0) return;
+  const addresses = await dnsLookup(host, { all: true });
+  if (addresses.some((a) => isPrivateAddress(a.address))) throw new PrivateNetworkError(host);
 }

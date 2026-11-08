@@ -24,7 +24,7 @@ JavaScript scanning follows lazy-loaded chunks: it reads the first-party scripts
 
 ### What it does not do
 
-- It does not run a browser, so scripts injected only at runtime by other scripts may be missed, and the timing numbers come from one server-side request, not from a real device.
+- The passive audit does not run a browser, so scripts injected only at runtime by other scripts may be missed, and its timing numbers come from one server-side request. For real page-load numbers turn on Lighthouse (`lighthouse` input, or `--lighthouse` in the CLI, see below).
 - It does not test your Supabase RLS policies or Firebase rules. It tells you when you need to check them.
 - A clean report is not a penetration test. It covers the common mistakes that are visible from outside.
 
@@ -34,7 +34,8 @@ JavaScript scanning follows lazy-loaded chunks: it reads the first-party scripts
 {
   "urls": ["https://my-app.example", "staging.my-app.example"],
   "maxBundles": 20,
-  "timeoutSecs": 15
+  "timeoutSecs": 15,
+  "lighthouse": false
 }
 ```
 
@@ -43,12 +44,13 @@ JavaScript scanning follows lazy-loaded chunks: it reads the first-party scripts
 | `urls` | (required) | Up to 100 public URLs. A bare domain is checked over https://. |
 | `maxBundles` | 20 | JavaScript files downloaded and scanned per site (1-100). |
 | `timeoutSecs` | 15 | Timeout for each HTTP request (5-60). |
+| `lighthouse` | false | Also run Lighthouse (mobile) in headless Chrome: scores, LCP/CLS/TBT, page weight, combined score and plain-language findings. Adds about 10-60 s per site; give the run at least 1024 MB of memory (2048 MB recommended). |
 
 Only public sites can be audited on the platform: URLs that resolve to localhost or a private network are refused.
 
 ## Output
 
-Each site becomes one dataset row: `url`, `finalUrl`, `score`, `grade`, counts per severity, `frameworks`, `hosting`, `ttfbMs`, `jsKb`, `topIssues`, the full `findings` list (id, category, severity, title, detail, fix, redacted evidence) and `metrics`. A URL that could not be fetched still gets a row, with `error` set.
+Each site becomes one dataset row: `url`, `finalUrl`, `score`, `grade`, counts per severity, `frameworks`, `hosting`, `ttfbMs`, `jsKb`, `topIssues`, the full `findings` list (id, category, severity, title, detail, fix, redacted evidence) and `metrics`, plus `hooks` (the strongest findings as plain sentences) and `fixScope`. With `lighthouse` on, the row also gets `combinedScore`, `performance`, `accessibility`, `bestPractices`, `seoScore`, `lcpMs`, `cls`, `tbtMs`, `pageKb` and the `lighthouse` summary (top savings included), shown in the dataset's Lighthouse view; if Chrome fails or times out, those stay null and `lighthouseError` says why. A URL that could not be fetched still gets a row, with `error` set.
 
 The whole run is also saved as a Markdown report in the key-value store under `OUTPUT`. This excerpt is from the test fixture in this repository (a fake app with planted, non-working keys):
 
@@ -87,10 +89,59 @@ Options: `--json`, `--out <file>`, `--max-bundles <n>`, `--timeout <ms>`, and `-
 
 No API keys or environment variables are needed.
 
+## Lighthouse and plain-language findings
+
+With `--lighthouse` (or the Actor's `lighthouse` input) it also runs [Lighthouse](https://github.com/GoogleChrome/lighthouse) 13.6 in headless Chrome, with its default mobile preset (a simulated mid-range phone on a slow 4G connection). The CLI runs it at the same time as the passive audit. The report then gets:
+
+- performance, accessibility, best-practices and SEO scores (0-100)
+- Largest Contentful Paint, Total Blocking Time, Cumulative Layout Shift, First Contentful Paint
+- JavaScript and total page weight as transferred, and the three biggest savings Lighthouse estimates (time and bytes)
+- a combined score: security 50 %, Lighthouse performance 30 %, accessibility, best practices and SEO 20 % together
+
+In the CLI, `--hooks` (implies `--lighthouse`) prints a short version instead: the three strongest findings across security and speed, written as plain sentences with the measured numbers and no metric acronyms, and a one-line fixed-price scope for fixing them. It is meant for explaining a site's problems to its owner, who usually is not a developer. When both security and speed have something to say, the three always include at least one of each, and two findings that lead to the same fix take one slot.
+
+```bash
+npx tsx src/cli.ts shop.example --hooks --rate 25
+npx tsx src/cli.ts shop.example --lighthouse --json --lighthouse-json ./reports
+```
+
+Output from a real run on a public small-business site (URL replaced, 18 s):
+
+```markdown
+## https://shop.example/
+
+Combined score 64/100 (security 72, mobile speed 32, accessibility 97, best practices 81, SEO 92)
+
+1. Google Lighthouse rates the page 32/100 for speed on a phone: the main content appears after 16.0 s (Google counts under 2.5 s as good).
+2. While it loads, the page is frozen for about 4.9 s in total, so taps and scrolls do nothing.
+3. The server sends none of the 6 standard security headers browsers look for, so nothing stops a downgrade to plain http://, injected scripts or other sites framing the page.
+
+Fixed-price scope: cut the JavaScript work on load and add the missing security headers; about 6 hours of work, $150 fixed, with a before/after re-run of this audit.
+```
+
+The hours are rough per-item estimates built into the tool, and the price is just hours × `--rate`. Read the full report before quoting anyone.
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `--lighthouse` | off | Run Lighthouse next to the passive audit |
+| `--hooks` | off | Print the three plain-language findings and the scope line (Markdown, or JSON with `--json`) |
+| `--rate <usd>` | none | Hourly rate used to price the scope line |
+| `--lighthouse-timeout <s>` | 60 | Hard limit for Chrome start, page load and audits |
+| `--chrome-path <path>` | `$CHROME_PATH`, then auto-detect | Chrome or Chromium binary |
+| `--lighthouse-json <dir>` | none | Also save each full Lighthouse report as `<dir>/<host>.json` (opens in the Lighthouse viewer) |
+
+Notes:
+
+- Needs Google Chrome or Chromium. Chrome is started with `--no-sandbox` because the sandbox is not available in most containers and servers; it runs a throwaway profile in a temp directory and only loads the audited page.
+- If Chrome is missing, crashes or the timeout hits, the passive audit is still reported and the Lighthouse part says why it is missing.
+- On the platform, Chrome only opens a site after the passive audit has reached it, using the final URL that the guarded HTTP client already followed, and after checking that its host resolves to a public address. Pages that never stop loading (chat widgets, polling) are cut off after 25 s of loading so the whole run fits in the timeout.
+- Lighthouse simulates the phone from a trace taken on this machine, so the performance score moves between runs (on our test server the same page varied by up to 15 points). Treat one run as an estimate and re-run before quoting a number.
+- On 11 public small-business sites a run took 9-23 s, and 33-52 s for the two pages that never stopped loading.
+
 ## Development
 
 ```bash
-npm test           # Vitest: unit tests + a local fixture server with planted fake keys
+npm test           # Vitest: unit tests, a local fixture server with planted fake keys, saved Lighthouse reports
 npm run lint       # ESLint (typescript-eslint, strict type-checked)
 npm run typecheck
 npm run build      # compiles to dist/
@@ -110,12 +161,15 @@ src/
   page.ts         HTML parsing (cheerio), chunk discovery, first-party scope
   secrets.ts      secret patterns, JWT role decoding, redaction
   checks/         one file per area; each is a pure function of the snapshot
-  score.ts        severity weights and grade
-  report.ts       Markdown report
+  score.ts        severity weights, grade and the combined score
+  report.ts       Markdown report and the short hooks report
+  hooks.ts        plain-language findings, ranking and the fix scope line
+  lighthouse/     Chrome + Lighthouse runner (timeout, fallback) and report parsing
   cli.ts          command-line entry
   main.ts         Apify Actor entry (input validation, dataset, OUTPUT, pay-per-event)
 .actor/           actor.json, input, dataset and output schemas, Dockerfile
-test/             Vitest suites and the fixture server
+test/             Vitest suites, the fixture server and trimmed Lighthouse reports
+scripts/         trim-lhr.ts: turns a full Lighthouse report into an anonymous test fixture
 ```
 
 ## License

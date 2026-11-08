@@ -1,4 +1,4 @@
-import type { AuditResult, Finding, Severity } from './types.js';
+import type { AuditResult, Finding, LighthouseScores, Severity } from './types.js';
 
 export const SEVERITY_ORDER: Severity[] = ['critical', 'high', 'medium', 'low', 'info'];
 
@@ -29,4 +29,27 @@ export function grade(value: number): AuditResult['grade'] {
 
 export function sortFindings(findings: Finding[]): Finding[] {
   return [...findings].sort((a, b) => SEVERITY_ORDER.indexOf(a.severity) - SEVERITY_ORDER.indexOf(b.severity));
+}
+
+/**
+ * One number for "how ready is this site": the passive security score counts 50 %, Lighthouse
+ * performance 30 %, and accessibility, best practices and SEO share the last 20 %. Categories
+ * Lighthouse could not score are left out and the remaining weights rescaled.
+ */
+export function combinedScore(securityScore: number, lh: LighthouseScores): number {
+  const parts: [number | null, number][] = [
+    [securityScore, 0.5],
+    [lh.performance, 0.3],
+    [lh.accessibility, 0.2 / 3],
+    [lh.bestPractices, 0.2 / 3],
+    [lh.seo, 0.2 / 3],
+  ];
+  let total = 0;
+  let weight = 0;
+  for (const [value, w] of parts) {
+    if (value === null) continue;
+    total += value * w;
+    weight += w;
+  }
+  return Math.round(total / weight);
 }

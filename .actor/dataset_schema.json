@@ -96,6 +96,97 @@
         "type": "object",
         "title": "Metrics"
       },
+      "combinedScore": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "title": "Combined score (security + Lighthouse)"
+      },
+      "performance": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "title": "Lighthouse performance (mobile)"
+      },
+      "accessibility": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "title": "Lighthouse accessibility"
+      },
+      "bestPractices": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "title": "Lighthouse best practices"
+      },
+      "seoScore": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "title": "Lighthouse SEO"
+      },
+      "lcpMs": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "title": "Largest Contentful Paint (ms)"
+      },
+      "cls": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "title": "Cumulative Layout Shift"
+      },
+      "tbtMs": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "title": "Total Blocking Time (ms)"
+      },
+      "pageKb": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "title": "Page weight transferred (KB)"
+      },
+      "hooks": {
+        "type": "array",
+        "title": "Strongest findings in plain words",
+        "items": {
+          "type": "string"
+        }
+      },
+      "fixScope": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "title": "Fix scope"
+      },
+      "lighthouse": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "title": "Lighthouse summary"
+      },
+      "lighthouseError": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "title": "Why Lighthouse is missing"
+      },
       "auditedAt": {
         "type": "string",
         "title": "Audited at (ISO time)"
@@ -193,6 +284,88 @@
           },
           "error": {
             "label": "Error",
+            "format": "text"
+          }
+        }
+      }
+    },
+    "lighthouse": {
+      "title": "Lighthouse",
+      "transformation": {
+        "fields": [
+          "url",
+          "combinedScore",
+          "score",
+          "performance",
+          "accessibility",
+          "bestPractices",
+          "seoScore",
+          "lcpMs",
+          "cls",
+          "tbtMs",
+          "pageKb",
+          "hooks",
+          "fixScope",
+          "lighthouseError"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "url": {
+            "label": "URL",
+            "format": "link"
+          },
+          "combinedScore": {
+            "label": "Combined",
+            "format": "number"
+          },
+          "score": {
+            "label": "Security",
+            "format": "number"
+          },
+          "performance": {
+            "label": "Performance",
+            "format": "number"
+          },
+          "accessibility": {
+            "label": "Accessibility",
+            "format": "number"
+          },
+          "bestPractices": {
+            "label": "Best practices",
+            "format": "number"
+          },
+          "seoScore": {
+            "label": "SEO",
+            "format": "number"
+          },
+          "lcpMs": {
+            "label": "LCP ms",
+            "format": "number"
+          },
+          "cls": {
+            "label": "CLS",
+            "format": "number"
+          },
+          "tbtMs": {
+            "label": "TBT ms",
+            "format": "number"
+          },
+          "pageKb": {
+            "label": "Page KB",
+            "format": "number"
+          },
+          "hooks": {
+            "label": "Plain-language findings",
+            "format": "array"
+          },
+          "fixScope": {
+            "label": "Fix scope",
+            "format": "text"
+          },
+          "lighthouseError": {
+            "label": "Lighthouse error",
             "format": "text"
           }
         }
